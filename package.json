@@ -1,0 +1,53 @@
+{
+  "name": "a11y-visual-check",
+  "version": "1.0.0",
+  "description": "Compares a web page before and after a change - screenshot, accessibility tree, and axe-core violations - and writes a Markdown report. Built on Playwright.",
+  "keywords": [
+    "playwright",
+    "visual-testing",
+    "accessibility",
+    "a11y",
+    "axe-core",
+    "aria",
+    "regression-testing"
+  ],
+  "author": "Isabel Azevedo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ifsazevedo/a11y-visual-check.git"
+  },
+  "homepage": "https://github.com/ifsazevedo/a11y-visual-check#readme",
+  "bugs": "https://github.com/ifsazevedo/a11y-visual-check/issues",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "example",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "npm run typecheck && npm run test:unit && npm run test:e2e",
+    "typecheck": "tsc --noEmit --allowJs --checkJs --module nodenext --moduleResolution nodenext --target es2022 --skipLibCheck --types node src/index.js",
+    "test:unit": "node --test \"test/unit/*.test.js\"",
+    "test:e2e": "node --test --test-concurrency=1 \"test/e2e/*.test.js\""
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.14.0"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.50.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^22.20.5",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+test-results/
+playwright-report/
+# outputs of the end-to-end tests
+test/e2e/project/visual-evidence/
+test/e2e/project/tests/*-snapshots/
+test/e2e/visual-evidence/
+test/e2e/.example-snapshots/
+test/e2e/.example-output/

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Download Progress</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Styles embedded so that the page is self-contained -->
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 2rem 1.5rem;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background-color: #f6f6f6;
+    }
+
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 2rem;
+    }
+
+    .callout {
+      padding: 1rem;
+      border-left: 4px solid #dcdcdc;
+      background: #f8f8f8;
+      border-radius: 0.25rem;
+    }
+
+    .tasks fieldset {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #dcdcdc;
+      background: #fafafa;
+    }
+
+    .tasks legend {
+      font-weight: 600;
+    }
+
+    .tasks label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0.25rem 0;
+    }
+  </style>
+  <style>
+    progress {
+      width: 100%;
+      height: 1.5rem;
+      accent-color: #06d6a0;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Preparing your download</h1>
+    <p>Two of four preparation tasks are complete.</p>
+    <label for="loading-progress" id="progress-label">50% complete.</label>
+    <progress id="loading-progress" max="100" value="50" aria-describedby="status">50%</progress>
+    <!-- Same visible text; role="status" and aria-live make screen readers announce its changes. -->
+    <div id="status" role="status" aria-live="polite">Upload the project brief: done. Review stakeholder notes: done.</div>
+    <div class="callout" role="note">
+      <p>
+        This example is used to check that adding ARIA attributes to the status text
+        above does not change the page's visual appearance.
+      </p>
+    </div>
+  </main>
+</body>
+</html>

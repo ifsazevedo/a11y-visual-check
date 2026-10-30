@@ -14,8 +14,9 @@ follow [Semantic Versioning](https://semver.org/).
   axe-core loaded by `@axe-core/playwright`, the engine that analysed the page.
 - `AXE_TAGS`, the tags of the rules run by `checkPage`.
 - Options `outputDir` (folder of the reports) and `axeTags` (rules to run),
-  and `DEFAULTS`, the default values of the options. Invalid options and
-  unknown axe-core tags are rejected with a clear message.
+  and `DEFAULTS`, the default values of the options. An option given as
+  `undefined` takes its default value; invalid options and unknown axe-core
+  tags are rejected with a clear message. `AXE_TAGS` and `DEFAULTS` are frozen.
 - The report header gives the version of axe-core that analysed the page.
 
 ### Changed

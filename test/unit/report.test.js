@@ -69,6 +69,15 @@ test('report: rules table after the lists, cells escaped', () => {
   assert.ok(r.includes('| `gone` | - | a \\| b |'));
 });
 
+test('report: a backslash in a cell cannot cancel the escaping of a pipe', () => {
+  const r = buildReport({
+    ...base,
+    violations: { fixed: [], introduced: [], remaining: ['x (minor) a'] },
+    rules: [{ id: 'x', wcag: '', help: 'a \\| b & <c>', url: '' }],
+  }, diffLines);
+  assert.ok(r.includes('| `x` | - | a \\\\\\| b &amp; &lt;c&gt; |'), r);
+});
+
 test('report: no rules table without violations', () => {
   assert.ok(!buildReport({ ...base, rules: [] }, diffLines).includes('### Rules'));
   assert.ok(!buildReport(base, diffLines).includes('### Rules'));

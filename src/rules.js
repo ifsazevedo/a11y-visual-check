@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
  * practices of axe-core. Without them, axe-core skips the WCAG 2.2 rule
  * `target-size`.
  */
-export const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
+export const AXE_TAGS = Object.freeze(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']);
 
 /**
  * @typedef {object} RuleMetadata

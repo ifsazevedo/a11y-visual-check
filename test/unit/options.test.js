@@ -16,8 +16,27 @@ test('resolveOptions: given options replace the defaults', () => {
   assert.deepEqual(o.axeTags, ['wcag2a']);
 });
 
-test('resolveOptions: DEFAULTS cannot be changed by mistake', () => {
+test('resolveOptions: an option given as undefined takes its default value', () => {
+  const o = resolveOptions({ selector: undefined, fullPage: undefined, outputDir: undefined, axeTags: undefined, mask: undefined });
+  assert.deepEqual(o, resolveOptions());
+});
+
+test('resolveOptions: DEFAULTS and AXE_TAGS cannot be changed by mistake', () => {
   assert.ok(Object.isFrozen(DEFAULTS));
+  assert.ok(Object.isFrozen(AXE_TAGS));
+  assert.throws(() => /** @type {any} */ (AXE_TAGS).push('experimental'), TypeError);
+});
+
+test('resolveOptions: changing the result affects neither the options given nor later calls', () => {
+  const given = { axeTags: ['wcag2a'] };
+  const first = resolveOptions(given);
+  first.axeTags.push('best-practice');
+  first.mask.push(/** @type {any} */ ({}));
+  assert.deepEqual(given.axeTags, ['wcag2a']);
+  const later = resolveOptions();
+  later.axeTags.push('experimental');
+  assert.deepEqual(resolveOptions().axeTags, [...AXE_TAGS]);
+  assert.deepEqual(resolveOptions().mask, []);
 });
 
 test('resolveOptions: invalid options are rejected with a clear message', () => {

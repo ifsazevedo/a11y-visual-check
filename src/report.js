@@ -27,9 +27,16 @@ export function buildReport(data, diff) {
   const list = (/** @type {string[]} */ items) =>
     items.length ? items.map(v => `- \`${v}\``).join('\n') : '- none';
   const { fixed, introduced, remaining } = data.violations;
-  // Markdown table cells: no pipes, and HTML element names shown as text
-  const cell = (/** @type {string} */ s) =>
-    s.replace(/\|/g, '\\|').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Markdown table cell: backslashes first, so that the backslash added before
+  // each pipe cannot be cancelled by one already in the text; then the pipes,
+  // which would split the cell; then &, < and >, so that HTML in the text, such
+  // as "<html>", is shown as text instead of being interpreted
+  const cell = (/** @type {string} */ s) => s
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
   const rules = data.rules?.length ? [
     '',
     '### Rules',

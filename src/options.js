@@ -17,7 +17,12 @@ import { AXE_TAGS } from './rules.js';
  */
 
 /**
- * @typedef {Required<CheckPageOptions>} ResolvedOptions
+ * @typedef {object} ResolvedOptions
+ * @property {string} selector
+ * @property {import('@playwright/test').Locator[]} mask
+ * @property {boolean} fullPage
+ * @property {string} outputDir
+ * @property {string[]} axeTags
  */
 
 /** Values used when an option is not given. */
@@ -30,12 +35,16 @@ export const DEFAULTS = Object.freeze({
 
 /**
  * Fills in the default values and rejects invalid options with a clear
- * message, before any browser work is done.
+ * message, before any browser work is done. An option given as undefined
+ * takes its default value, e.g. { selector: process.env.SELECTOR } when the
+ * variable is not set. The arrays are copied, so that changing the result
+ * changes neither the options given nor the defaults of later calls.
  * @param {CheckPageOptions} [options]
  * @returns {ResolvedOptions}
  */
 export function resolveOptions(options = {}) {
-  const o = { ...DEFAULTS, mask: [], ...options };
+  const given = Object.fromEntries(Object.entries(options).filter(([, v]) => v !== undefined));
+  const o = { ...DEFAULTS, mask: [], ...given };
   const fail = (/** @type {string} */ message) => { throw new Error(`checkPage: ${message}`); };
   if (typeof o.selector !== 'string' || o.selector.trim() === '')
     fail('selector must be a non-empty string, e.g. "main".');
@@ -47,5 +56,5 @@ export function resolveOptions(options = {}) {
     fail('outputDir must be a non-empty string, e.g. "visual-evidence".');
   if (!Array.isArray(o.axeTags) || o.axeTags.length === 0 || !o.axeTags.every(t => typeof t === 'string' && t !== ''))
     fail('axeTags must be a non-empty array of tags, e.g. ["wcag2a", "wcag2aa"].');
-  return o;
+  return { ...o, mask: [...o.mask], axeTags: [...o.axeTags] };
 }

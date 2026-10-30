@@ -23,10 +23,10 @@ ISEP. It is maintained for teaching purposes.
 ## Installation
 
 ```bash
-npm install --save-dev github:ifsazevedo/a11y-visual-check#v1.0.0
+npm install --save-dev github:ifsazevedo/a11y-visual-check#v1.1.0
 ```
 
-This also installs `@axe-core/playwright`. The version after `#` is recorded in
+This also installs `@axe-core/playwright`, which includes axe-core. The version after `#` is recorded in
 `package.json`, so every clone of the project uses the same version.
 
 ## Usage
@@ -69,7 +69,7 @@ replaces the references and writes no report.
 | Stage | Files |
 |---|---|
 | 1 | `<name>-<browser>-<platform>.png`, `<name>-aria-<browser>-<platform>.yml`, and `<name>-axe-<browser>-<platform>.txt`, in the `-snapshots` folder next to the test file |
-| 2 | `visual-evidence/<name>/<browser>/report.md` in the project root and, when the screenshot differs, `actual.png` and `diff.png` next to it |
+| 2 | `visual-evidence/<name>/<browser>/report.md` in the project root (see `outputDir`) and, when the screenshot differs, `actual.png` and `diff.png` next to it |
 
 Keep each report folder together: `report.md` refers to the images by file
 name. The references and the reports are meant to be committed.
@@ -89,6 +89,8 @@ await checkPage(page, testInfo, 'home', {
   selector: 'main',                                  // region of the accessibility tree
   mask: [page.getByText(/You are logged in as/)],    // hidden in the screenshot
   fullPage: true,                                    // whole page, not only the visible part
+  outputDir: 'evidence/AnaMaria1223344',             // folder of the reports
+  axeTags: ['wcag2a', 'wcag2aa'],                    // axe-core rules to run
 });
 ```
 
@@ -97,9 +99,44 @@ await checkPage(page, testInfo, 'home', {
 | `selector` | `'body'` | Region whose accessibility tree is compared; it must match a single element |
 | `mask` | `[]` | Locators covered by a box in the screenshot, e.g. content that changes between runs |
 | `fullPage` | `false` | Compare the whole page instead of the visible part |
+| `outputDir` | `'visual-evidence'` | Folder of the reports, relative to the project root or absolute |
+| `axeTags` | `AXE_TAGS` | Tags of the axe-core rules to run; WCAG 2.2 levels A and AA and best practices by default. Unknown tags are rejected |
+
+Use the same options in both stages: references captured with other
+`axeTags` would report rules as fixed or introduced only because they were
+not run. To share options between the tests of a file, define them once:
+
+```js
+const OPTIONS = { outputDir: 'evidence/AnaMaria1223344' };
+
+test('home', async ({ page }, testInfo) => {
+  await page.goto('/');
+  await checkPage(page, testInfo, 'home', { ...OPTIONS, selector: 'main' });
+});
+```
+
+The default values are exported as `DEFAULTS`.
 
 `name` may contain letters, digits, `-` and `_`. axe-core always analyses the
 whole page, because some of its rules apply to the `html` element.
+
+### Accessibility rules
+
+axe-core checks the WCAG 2.2 success criteria of levels A and AA, including
+those introduced in WCAG 2.0 and 2.1, and its own best practices. The report
+lists each violation as `rule (impact) selector` and ends with a table that
+gives, for every rule named, its WCAG 2.2 success criteria and level (or
+*Best practice*), a short description, and a link to the rule's documentation:
+
+```markdown
+| Rule | WCAG 2.2 | Description |
+|---|---|---|
+| `color-contrast` | 1.4.3 (AA) | Elements must meet minimum color contrast ratio thresholds ([details](https://dequeuniversity.com/rules/axe/4.14/color-contrast)) |
+| `heading-order` | Best practice | Heading levels should only increase by one ([details](https://dequeuniversity.com/rules/axe/4.14/heading-order)) |
+```
+
+The rules run are exported as `AXE_TAGS`, and can be changed with the option
+`axeTags`.
 
 ## Exercises
 

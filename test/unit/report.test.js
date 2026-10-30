@@ -15,6 +15,11 @@ const base = {
   violations: { fixed: [], introduced: [], remaining: [] },
 };
 
+test('report: axe-core version in the header, when given', () => {
+  assert.ok(buildReport({ ...base, engine: '4.14.0' }, diffLines).includes('- Browser: chromium\n- axe-core: 4.14.0\n'));
+  assert.ok(!buildReport(base, diffLines).includes('axe-core:'));
+});
+
 test('report: header and the three sections', () => {
   const r = buildReport(base, diffLines);
   for (const s of ['# Comparison report: book-list', '- Page: http://localhost:9000/book',
@@ -47,4 +52,24 @@ test('report: violations listed with counts', () => {
   assert.ok(r.includes('### Fixed (1)\n\n- `html-has-lang (serious) html`'));
   assert.ok(r.includes('### Introduced (0)\n\n- none'));
   assert.ok(r.includes('### Remaining (2)\n\n- `a`\n- `b`'));
+});
+
+test('report: rules table after the lists, cells escaped', () => {
+  const r = buildReport({
+    ...base,
+    violations: { fixed: ['html-has-lang (serious) html'], introduced: [], remaining: [] },
+    rules: [
+      { id: 'html-has-lang', wcag: '3.1.1 (A)', help: '<html> element must have a lang attribute', url: 'https://x/html-has-lang' },
+      { id: 'gone', wcag: '', help: 'a | b', url: '' },
+    ],
+  }, diffLines);
+  assert.ok(r.indexOf('### Rules') > r.indexOf('### Remaining'));
+  assert.ok(r.includes('| Rule | WCAG 2.2 | Description |\n|---|---|---|'));
+  assert.ok(r.includes('| `html-has-lang` | 3.1.1 (A) | &lt;html&gt; element must have a lang attribute ([details](https://x/html-has-lang)) |'));
+  assert.ok(r.includes('| `gone` | - | a \\| b |'));
+});
+
+test('report: no rules table without violations', () => {
+  assert.ok(!buildReport({ ...base, rules: [] }, diffLines).includes('### Rules'));
+  assert.ok(!buildReport(base, diffLines).includes('### Rules'));
 });

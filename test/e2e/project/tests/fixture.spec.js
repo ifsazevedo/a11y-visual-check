@@ -8,5 +8,7 @@ test('fixture', async ({ page }, testInfo) => {
   await checkPage(page, testInfo, process.env.NAME, {
     selector: process.env.SELECTOR || 'body',
     fullPage: process.env.FULL_PAGE === '1',
+    ...(process.env.OUTPUT_DIR ? { outputDir: process.env.OUTPUT_DIR } : {}),
+    ...(process.env.AXE_TAGS ? { axeTags: process.env.AXE_TAGS.split(',') } : {}),
   });
 });

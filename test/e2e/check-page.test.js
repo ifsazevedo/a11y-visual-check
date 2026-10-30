@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { axeEngine } from '../../src/rules.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
@@ -34,7 +35,7 @@ const report = (name) => fs.readFileSync(path.join(evidence(name), 'report.md'),
 const refs = (name) => fs.existsSync(snapshots) ? fs.readdirSync(snapshots).filter(f => f.startsWith(name + '-')) : [];
 
 before(() => {
-  for (const dir of ['visual-evidence', 'test-results', path.join('tests', 'fixture.spec.js-snapshots')])
+  for (const dir of ['visual-evidence', 'evidence', 'test-results', path.join('tests', 'fixture.spec.js-snapshots')])
     fs.rmSync(path.join(project, dir), { recursive: true, force: true });
 });
 
@@ -47,6 +48,7 @@ test('ARIA change: no visual difference, tree changed, no new violations', () =>
   const s2 = stage(2, 'after.html', 'aria', { SELECTOR: 'main' });
   assert.equal(s2.status, 0, s2.output);
   const r = report('aria');
+  assert.ok(r.includes(`- axe-core: ${axeEngine().version}\n`), 'the report names the engine that analysed the page');
   assert.match(r, /No visible difference from the reference\./);
   assert.match(r, /^-\s+- text: "Upload the project brief/m);
   assert.match(r, /^\+\s+- status: "Upload the project brief/m);
@@ -58,6 +60,36 @@ test('fixed violation: missing lang is reported as fixed', () => {
   const s2 = stage(2, 'after.html', 'lang');
   assert.equal(s2.status, 0, s2.output);
   assert.match(report('lang'), /### Fixed \(1\)\n\n- `html-has-lang \(serious\) html`/);
+  assert.match(report('lang'), /^\| `html-has-lang` \| 3\.1\.1 \(A\) \| &lt;html&gt; element must have a lang attribute \(\[details\]\(https:\/\/dequeuniversity\.com\/rules\/axe\/[\d.]+\/html-has-lang\)\) \|$/m);
+});
+
+test('WCAG 2.2: small targets are reported as target-size (2.5.8)', () => {
+  assert.equal(stage(1, 'after.html', 'target').status, 0);
+  stage(2, 'small-target.html', 'target'); // fails: the screenshot differs
+  const r = report('target');
+  assert.match(r, /### Introduced \(2\)\n\n- `target-size \(serious\) [^`]+`\n- `target-size \(serious\) [^`]+`/);
+  assert.match(r, /^\| `target-size` \| 2\.5\.8 \(AA\) \| /m);
+});
+
+test('outputDir: the report is written to the folder given', () => {
+  assert.equal(stage(1, 'before.html', 'outdir').status, 0);
+  const s2 = stage(2, 'before.html', 'outdir', { OUTPUT_DIR: 'evidence/AnaMaria1223344' });
+  assert.equal(s2.status, 0, s2.output);
+  const file = path.join(project, 'evidence', 'AnaMaria1223344', 'outdir', 'chromium', 'report.md');
+  assert.ok(fs.existsSync(file), file);
+  assert.ok(!fs.existsSync(evidence('outdir')), 'nothing written to visual-evidence');
+});
+
+test('axeTags: only the rules with the given tags are run', () => {
+  assert.equal(stage(1, 'after.html', 'tags', { AXE_TAGS: 'wcag2a,wcag2aa' }).status, 0);
+  stage(2, 'small-target.html', 'tags', { AXE_TAGS: 'wcag2a,wcag2aa' }); // fails: the screenshot differs
+  assert.match(report('tags'), /### Introduced \(0\)/, 'target-size (WCAG 2.2) is not run');
+});
+
+test('axeTags: a misspelt tag is rejected instead of running no rules', () => {
+  const s = stage(1, 'after.html', 'typo', { AXE_TAGS: 'wcag22a' });
+  assert.notEqual(s.status, 0);
+  assert.match(s.output, /unknown axe-core tags \["wcag22a"\]/);
 });
 
 test('visual change: the test fails, the report shows the images, a later passing run removes them', () => {

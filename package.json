@@ -1,6 +1,6 @@
 {
   "name": "a11y-visual-check",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Compares a web page before and after a change - screenshot, accessibility tree, and axe-core violations - and writes a Markdown report. Built on Playwright.",
   "keywords": [
     "playwright",
